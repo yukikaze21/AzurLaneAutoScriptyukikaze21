@@ -313,7 +313,6 @@
       "CommonCV": "any",
       "ChangeVanguard": "ship",
       "CommonDD": "any",
-      "EquipmentCode": "DD: null\nbogue: null\nhermes: null\nlangley: null\nranger: null",
       "CommissionLimit": true
     },
     "Campaign": {
