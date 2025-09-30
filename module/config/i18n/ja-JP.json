@@ -79,6 +79,10 @@
       "help": ""
     },
     "Hospital": {
+      "name": "病院探訪ストーリー",
+      "help": ""
+    },
+    "HospitalEvent": {
       "name": "病院探訪",
       "help": ""
     },
@@ -265,6 +269,10 @@
     "EventStory": {
       "name": "Event Story",
       "help": ""
+    },
+    "BoxDisassemble": {
+      "name": "Task.BoxDisassemble.name",
+      "help": "Task.BoxDisassemble.help"
     },
     "Benchmark": {
       "name": "機能テスト",
@@ -495,6 +503,10 @@
     "SaveError": {
       "name": "Error.SaveError.name",
       "help": "Error.SaveError.help"
+    },
+    "StrictRestart": {
+      "name": "Error.StrictRestart.name",
+      "help": "Error.StrictRestart.help"
     },
     "OnePushConfig": {
       "name": "Error.OnePushConfig.name",
@@ -856,6 +868,7 @@
       "name": "StopCondition.MapAchievement.name",
       "help": "StopCondition.MapAchievement.help",
       "non_stop": "non_stop",
+      "non_stop_clear_all": "non_stop_clear_all",
       "100_percent_clear": "100_percent_clear",
       "map_3_stars": "map_3_stars",
       "threat_safe": "threat_safe",
@@ -1030,6 +1043,10 @@
       "name": "Emotion.Fleet1Oath.name",
       "help": "Emotion.Fleet1Oath.help"
     },
+    "Fleet1Onsen": {
+      "name": "Emotion.Fleet1Onsen.name",
+      "help": "Emotion.Fleet1Onsen.help"
+    },
     "Fleet2Value": {
       "name": "Emotion.Fleet2Value.name",
       "help": "Emotion.Fleet2Value.help"
@@ -1056,6 +1073,10 @@
     "Fleet2Oath": {
       "name": "Emotion.Fleet2Oath.name",
       "help": "Emotion.Fleet2Oath.help"
+    },
+    "Fleet2Onsen": {
+      "name": "Emotion.Fleet2Onsen.name",
+      "help": "Emotion.Fleet2Onsen.help"
     }
   },
   "HpControl": {
@@ -1185,11 +1206,17 @@
     "CommonCV": {
       "name": "GemsFarming.CommonCV.name",
       "help": "GemsFarming.CommonCV.help",
+      "custom": "custom",
       "any": "any",
+      "eagle": "eagle only",
       "langley": "langley",
       "bogue": "bogue",
       "ranger": "ranger",
       "hermes": "hermes"
+    },
+    "CommonCVFilter": {
+      "name": "GemsFarming.CommonCVFilter.name",
+      "help": "GemsFarming.CommonCVFilter.help"
     },
     "ChangeVanguard": {
       "name": "GemsFarming.ChangeVanguard.name",
@@ -1201,11 +1228,33 @@
     "CommonDD": {
       "name": "GemsFarming.CommonDD.name",
       "help": "GemsFarming.CommonDD.help",
+      "custom": "custom",
       "any": "GemsFarming.CommonDD.any",
       "favourite": "GemsFarming.CommonDD.favourite",
       "aulick_or_foote": "GemsFarming.CommonDD.aulick_or_foote",
       "cassin_or_downes": "GemsFarming.CommonDD.cassin_or_downes",
-      "z20_or_z21": "GemsFarming.CommonDD.z20_or_z21"
+      "z20_or_z21": "GemsFarming.CommonDD.z20_or_z21",
+      "DDG": "GemsFarming.CommonDD.DDG"
+    },
+    "CommonDDFilter": {
+      "name": "GemsFarming.CommonDDFilter.name",
+      "help": "GemsFarming.CommonDDFilter.help"
+    },
+    "EquipmentCode": {
+      "name": "GemsFarming.EquipmentCode.name",
+      "help": "GemsFarming.EquipmentCode.help"
+    },
+    "ALLowHighFlagshipLevel": {
+      "name": "GemsFarming.ALLowHighFlagshipLevel.name",
+      "help": "GemsFarming.ALLowHighFlagshipLevel.help"
+    },
+    "ALLowLowVanguardLevel": {
+      "name": "GemsFarming.ALLowLowVanguardLevel.name",
+      "help": "GemsFarming.ALLowLowVanguardLevel.help"
+    },
+    "DelayTaskIFNoFlagship": {
+      "name": "GemsFarming.DelayTaskIFNoFlagship.name",
+      "help": "GemsFarming.DelayTaskIFNoFlagship.help"
     },
     "CommissionLimit": {
       "name": "GemsFarming.CommissionLimit.name",
@@ -1297,6 +1346,28 @@
     "UseRecommendFleet": {
       "name": "Hospital.UseRecommendFleet.name",
       "help": "Hospital.UseRecommendFleet.help"
+    }
+  },
+  "HospitalEvent": {
+    "_info": {
+      "name": "HospitalEvent._info.name",
+      "help": "HospitalEvent._info.help"
+    },
+    "Mode": {
+      "name": "HospitalEvent.Mode.name",
+      "help": "HospitalEvent.Mode.help",
+      "easy": "easy",
+      "normal": "normal",
+      "hard": "hard"
+    },
+    "Stage": {
+      "name": "HospitalEvent.Stage.name",
+      "help": "HospitalEvent.Stage.help",
+      "T1": "T1",
+      "T2": "T2",
+      "T3": "T3",
+      "T4": "T4",
+      "ESP": "ESP"
     }
   },
   "MaritimeEscort": {
@@ -2227,6 +2298,16 @@
       "name": "Exercise._info.name",
       "help": "Exercise._info.help"
     },
+    "DelayUntilHoursBeforeNextUpdate": {
+      "name": "Exercise.DelayUntilHoursBeforeNextUpdate.name",
+      "help": "Exercise.DelayUntilHoursBeforeNextUpdate.help",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "12": "12"
+    },
     "OpponentChooseMode": {
       "name": "Exercise.OpponentChooseMode.name",
       "help": "Exercise.OpponentChooseMode.help",
@@ -2322,6 +2403,14 @@
     "RepairThreshold": {
       "name": "OpsiGeneral.RepairThreshold.name",
       "help": "OpsiGeneral.RepairThreshold.help"
+    },
+    "UseRepairPack": {
+      "name": "OpsiGeneral.UseRepairPack.name",
+      "help": "OpsiGeneral.UseRepairPack.help"
+    },
+    "RepairPackThreshold": {
+      "name": "OpsiGeneral.RepairPackThreshold.name",
+      "help": "OpsiGeneral.RepairPackThreshold.help"
     },
     "DoRandomMapEvent": {
       "name": "OpsiGeneral.DoRandomMapEvent.name",
@@ -2423,6 +2512,10 @@
     "CustomFilter": {
       "name": "OpsiShop.CustomFilter.name",
       "help": "OpsiShop.CustomFilter.help"
+    },
+    "DisableBeforeDate": {
+      "name": "OpsiShop.DisableBeforeDate.name",
+      "help": "OpsiShop.DisableBeforeDate.help"
     }
   },
   "OpsiVoucher": {
@@ -2447,12 +2540,28 @@
     "UseTuningSample": {
       "name": "OpsiDaily.UseTuningSample.name",
       "help": "OpsiDaily.UseTuningSample.help"
+    },
+    "SkipSirenResearchMission": {
+      "name": "OpsiDaily.SkipSirenResearchMission.name",
+      "help": "OpsiDaily.SkipSirenResearchMission.help"
+    },
+    "KeepMissionZone": {
+      "name": "OpsiDaily.KeepMissionZone.name",
+      "help": "OpsiDaily.KeepMissionZone.help"
+    },
+    "MissionZones": {
+      "name": "OpsiDaily.MissionZones.name",
+      "help": "OpsiDaily.MissionZones.help"
     }
   },
   "OpsiObscure": {
     "_info": {
       "name": "OpsiObscure._info.name",
       "help": "OpsiObscure._info.help"
+    },
+    "SkipHazard2Obscure": {
+      "name": "OpsiObscure.SkipHazard2Obscure.name",
+      "help": "OpsiObscure.SkipHazard2Obscure.help"
     },
     "ForceRun": {
       "name": "OpsiObscure.ForceRun.name",
@@ -2474,9 +2583,17 @@
       "name": "OpsiStronghold._info.name",
       "help": "OpsiStronghold._info.help"
     },
+    "SubmarineEveryCombat": {
+      "name": "OpsiStronghold.SubmarineEveryCombat.name",
+      "help": "OpsiStronghold.SubmarineEveryCombat.help"
+    },
     "ForceRun": {
       "name": "OpsiStronghold.ForceRun.name",
       "help": "OpsiStronghold.ForceRun.help"
+    },
+    "HasStronghold": {
+      "name": "OpsiStronghold.HasStronghold.name",
+      "help": "OpsiStronghold.HasStronghold.help"
     }
   },
   "OpsiMonthBoss": {
@@ -2511,6 +2628,7 @@
     "HazardLevel": {
       "name": "OpsiMeowfficerFarming.HazardLevel.name",
       "help": "OpsiMeowfficerFarming.HazardLevel.help",
+      "2": "2",
       "3": "3",
       "4": "4",
       "5": "5",
@@ -2520,6 +2638,10 @@
     "TargetZone": {
       "name": "OpsiMeowfficerFarming.TargetZone.name",
       "help": "OpsiMeowfficerFarming.TargetZone.help"
+    },
+    "APPreserveUntilReset": {
+      "name": "OpsiMeowfficerFarming.APPreserveUntilReset.name",
+      "help": "OpsiMeowfficerFarming.APPreserveUntilReset.help"
     }
   },
   "OpsiHazard1Leveling": {
@@ -2533,6 +2655,14 @@
       "0": "0",
       "44": "44",
       "22": "22"
+    },
+    "OperationCoinsPreserve": {
+      "name": "OpsiHazard1Leveling.OperationCoinsPreserve.name",
+      "help": "OpsiHazard1Leveling.OperationCoinsPreserve.help"
+    },
+    "DoScanningDevice": {
+      "name": "OpsiHazard1Leveling.DoScanningDevice.name",
+      "help": "OpsiHazard1Leveling.DoScanningDevice.help"
     }
   },
   "Daemon": {
@@ -2569,6 +2699,36 @@
       "help": "EventStory.SkipBattle.help",
       "True": "True",
       "False": "False"
+    }
+  },
+  "BoxDisassemble": {
+    "_info": {
+      "name": "BoxDisassemble._info.name",
+      "help": "BoxDisassemble._info.help"
+    },
+    "UsePurpleBox": {
+      "name": "BoxDisassemble.UsePurpleBox.name",
+      "help": "BoxDisassemble.UsePurpleBox.help"
+    },
+    "PurpleBoxLimit": {
+      "name": "BoxDisassemble.PurpleBoxLimit.name",
+      "help": "BoxDisassemble.PurpleBoxLimit.help"
+    },
+    "UseBlueBox": {
+      "name": "BoxDisassemble.UseBlueBox.name",
+      "help": "BoxDisassemble.UseBlueBox.help"
+    },
+    "BlueBoxLimit": {
+      "name": "BoxDisassemble.BlueBoxLimit.name",
+      "help": "BoxDisassemble.BlueBoxLimit.help"
+    },
+    "UseWhiteBox": {
+      "name": "BoxDisassemble.UseWhiteBox.name",
+      "help": "BoxDisassemble.UseWhiteBox.help"
+    },
+    "WhiteBoxLimit": {
+      "name": "BoxDisassemble.WhiteBoxLimit.name",
+      "help": "BoxDisassemble.WhiteBoxLimit.help"
     }
   },
   "Benchmark": {
@@ -2613,6 +2773,234 @@
       "help": "GameManager.AutoRestart.help"
     }
   },
+  "Oil": {
+    "_info": {
+      "name": "Oil._info.name",
+      "help": "Oil._info.help"
+    },
+    "Value": {
+      "name": "Oil.Value.name",
+      "help": "Oil.Value.help"
+    },
+    "Limit": {
+      "name": "Oil.Limit.name",
+      "help": "Oil.Limit.help"
+    },
+    "Color": {
+      "name": "Oil.Color.name",
+      "help": "Oil.Color.help"
+    },
+    "Record": {
+      "name": "Oil.Record.name",
+      "help": "Oil.Record.help"
+    }
+  },
+  "Coin": {
+    "_info": {
+      "name": "Coin._info.name",
+      "help": "Coin._info.help"
+    },
+    "Value": {
+      "name": "Coin.Value.name",
+      "help": "Coin.Value.help"
+    },
+    "Limit": {
+      "name": "Coin.Limit.name",
+      "help": "Coin.Limit.help"
+    },
+    "Color": {
+      "name": "Coin.Color.name",
+      "help": "Coin.Color.help"
+    },
+    "Record": {
+      "name": "Coin.Record.name",
+      "help": "Coin.Record.help"
+    }
+  },
+  "Gem": {
+    "_info": {
+      "name": "Gem._info.name",
+      "help": "Gem._info.help"
+    },
+    "Value": {
+      "name": "Gem.Value.name",
+      "help": "Gem.Value.help"
+    },
+    "Color": {
+      "name": "Gem.Color.name",
+      "help": "Gem.Color.help"
+    },
+    "Record": {
+      "name": "Gem.Record.name",
+      "help": "Gem.Record.help"
+    }
+  },
+  "Pt": {
+    "_info": {
+      "name": "Pt._info.name",
+      "help": "Pt._info.help"
+    },
+    "Value": {
+      "name": "Pt.Value.name",
+      "help": "Pt.Value.help"
+    },
+    "Color": {
+      "name": "Pt.Color.name",
+      "help": "Pt.Color.help"
+    },
+    "Record": {
+      "name": "Pt.Record.name",
+      "help": "Pt.Record.help"
+    }
+  },
+  "YellowCoin": {
+    "_info": {
+      "name": "YellowCoin._info.name",
+      "help": "YellowCoin._info.help"
+    },
+    "Value": {
+      "name": "YellowCoin.Value.name",
+      "help": "YellowCoin.Value.help"
+    },
+    "Color": {
+      "name": "YellowCoin.Color.name",
+      "help": "YellowCoin.Color.help"
+    },
+    "Record": {
+      "name": "YellowCoin.Record.name",
+      "help": "YellowCoin.Record.help"
+    }
+  },
+  "PurpleCoin": {
+    "_info": {
+      "name": "PurpleCoin._info.name",
+      "help": "PurpleCoin._info.help"
+    },
+    "Value": {
+      "name": "PurpleCoin.Value.name",
+      "help": "PurpleCoin.Value.help"
+    },
+    "Color": {
+      "name": "PurpleCoin.Color.name",
+      "help": "PurpleCoin.Color.help"
+    },
+    "Record": {
+      "name": "PurpleCoin.Record.name",
+      "help": "PurpleCoin.Record.help"
+    }
+  },
+  "ActionPoint": {
+    "_info": {
+      "name": "ActionPoint._info.name",
+      "help": "ActionPoint._info.help"
+    },
+    "Value": {
+      "name": "ActionPoint.Value.name",
+      "help": "ActionPoint.Value.help"
+    },
+    "Total": {
+      "name": "ActionPoint.Total.name",
+      "help": "ActionPoint.Total.help"
+    },
+    "Color": {
+      "name": "ActionPoint.Color.name",
+      "help": "ActionPoint.Color.help"
+    },
+    "Record": {
+      "name": "ActionPoint.Record.name",
+      "help": "ActionPoint.Record.help"
+    }
+  },
+  "Merit": {
+    "_info": {
+      "name": "Merit._info.name",
+      "help": "Merit._info.help"
+    },
+    "Value": {
+      "name": "Merit.Value.name",
+      "help": "Merit.Value.help"
+    },
+    "Color": {
+      "name": "Merit.Color.name",
+      "help": "Merit.Color.help"
+    },
+    "Record": {
+      "name": "Merit.Record.name",
+      "help": "Merit.Record.help"
+    }
+  },
+  "Cube": {
+    "_info": {
+      "name": "Cube._info.name",
+      "help": "Cube._info.help"
+    },
+    "Value": {
+      "name": "Cube.Value.name",
+      "help": "Cube.Value.help"
+    },
+    "Color": {
+      "name": "Cube.Color.name",
+      "help": "Cube.Color.help"
+    },
+    "Record": {
+      "name": "Cube.Record.name",
+      "help": "Cube.Record.help"
+    }
+  },
+  "Core": {
+    "_info": {
+      "name": "Core._info.name",
+      "help": "Core._info.help"
+    },
+    "Value": {
+      "name": "Core.Value.name",
+      "help": "Core.Value.help"
+    },
+    "Color": {
+      "name": "Core.Color.name",
+      "help": "Core.Color.help"
+    },
+    "Record": {
+      "name": "Core.Record.name",
+      "help": "Core.Record.help"
+    }
+  },
+  "Medal": {
+    "_info": {
+      "name": "Medal._info.name",
+      "help": "Medal._info.help"
+    },
+    "Value": {
+      "name": "Medal.Value.name",
+      "help": "Medal.Value.help"
+    },
+    "Color": {
+      "name": "Medal.Color.name",
+      "help": "Medal.Color.help"
+    },
+    "Record": {
+      "name": "Medal.Record.name",
+      "help": "Medal.Record.help"
+    }
+  },
+  "GuildCoin": {
+    "_info": {
+      "name": "GuildCoin._info.name",
+      "help": "GuildCoin._info.help"
+    },
+    "Value": {
+      "name": "GuildCoin.Value.name",
+      "help": "GuildCoin.Value.help"
+    },
+    "Color": {
+      "name": "GuildCoin.Color.name",
+      "help": "GuildCoin.Color.help"
+    },
+    "Record": {
+      "name": "GuildCoin.Record.name",
+      "help": "GuildCoin.Record.help"
+    }
+  },
   "Storage": {
     "_info": {
       "name": "Storage._info.name",
@@ -2637,6 +3025,8 @@
       "Stop": "中止",
       "ScrollON": "自動スクロール ON",
       "ScrollOFF": "自動スクロール OFF",
+      "DashboardON": "Gui.Button.DashboardON",
+      "DashboardOFF": "Gui.Button.DashboardOFF",
       "ClearLog": "ログクリーニング",
       "Setting": "設定",
       "CheckUpdate": "アップデータチェック",
@@ -2669,6 +3059,26 @@
     },
     "Overview": {
       "Scheduler": "スケジューラー",
+      "Dashboard": "Gui.Overview.Dashboard",
+      "SecondsAgo": "Seconds ago",
+      "MinutesAgo": "Minutes ago",
+      "HoursAgo": "Hours ago",
+      "DaysAgo": "Days ago",
+      "MonthsAgo": "Months ago",
+      "YearsAgo": "Years ago",
+      "NoData": "No data",
+      "Oil": "Oil",
+      "Coin": "Coin",
+      "Gem": "Gem",
+      "Cube": "Cube",
+      "Pt": "Event Pt",
+      "YellowCoin": "Operation Supply Coin",
+      "PurpleCoin": "Special Item Token",
+      "ActionPoint": "Action Point",
+      "Merit": "Merit",
+      "Medal": "Medal",
+      "Core": "Core Data",
+      "GuildCoin": "Guild Coin",
       "Log": "ログ",
       "Running": "実行中",
       "Pending": "隊列中",

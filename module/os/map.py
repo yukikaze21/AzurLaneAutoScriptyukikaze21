@@ -1,4 +1,5 @@
 import time
+from sys import maxsize
 
 import inflection
 
@@ -10,17 +11,18 @@ from module.handler.login import LoginHandler, MAINTENANCE_ANNOUNCE
 from module.logger import logger
 from module.map.map import Map
 from module.os.assets import FLEET_EMP_DEBUFF, MAP_GOTO_GLOBE_FOG
-from module.os.fleet import OSFleet
+from module.os.fleet import OSFleet, BossFleet
 from module.os.globe_camera import GlobeCamera
 from module.os.globe_operation import RewardUncollectedError
 from module.os_handler.assets import AUTO_SEARCH_OS_MAP_OPTION_OFF, AUTO_SEARCH_OS_MAP_OPTION_OFF_DISABLED, \
     AUTO_SEARCH_OS_MAP_OPTION_ON, AUTO_SEARCH_REWARD
+from module.os_handler.storage import StorageHandler
 from module.os_handler.strategic import StrategicSearchHandler
 from module.ui.assets import GOTO_MAIN
 from module.ui.page import page_os
 
 
-class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
+class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
     def os_init(self):
         """
         Call this method before doing any Operation functions.
@@ -75,8 +77,16 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
             self.map_exit()
 
         # Clear current zone
-        if self.zone.zone_id in [22, 44, 154]:
-            logger.info('In zone 22, 44, 154, skip running first auto search')
+        if self.zone.zone_id in [22, 44]:
+            logger.info('In zone 22, 44, run first auto search')
+            OpsiFleet_Fleet = self.config.OpsiFleet_Fleet
+            self.config.override(OpsiFleet_Fleet=self.config.cross_get('OpsiHazard1Leveling.OpsiFleet.Fleet'))
+            self.fleet_set(self.config.OpsiFleet_Fleet)
+            self.run_auto_search()
+            self.handle_after_auto_search()
+            self.config.override(OpsiFleet_Fleet=OpsiFleet_Fleet)
+        elif self.zone.zone_id == 154:
+            logger.info('In zone 154, skip running first auto search')
             self.handle_ash_beacon_attack()
         else:
             self.run_auto_search(rescan=False)
@@ -249,6 +259,127 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
             self.hp_reset()
             return False
 
+    def handle_storage_one_fleet_repair(self, fleet_index, threshold):
+        """
+        Args:
+            fleet_index (int): fleet index
+            threshold (int): repair threshold
+
+        Returns:
+            bool: If repaired.
+
+        Pages:
+            in: STORAGE_FLEET_CHOOSE
+            out: STORAGE_FLEET_CHOOSE
+        """
+        self.storage_fleet_set(fleet_index)
+        self.storage_hp_get()
+        hp_grids = self._storage_hp_grid()
+        check = [round(data, 2) <= threshold if use else False
+                for data, use in zip(self.hp, self.hp_has_ship)]
+        if any(check):
+            logger.info(f'At least one ship in fleet {fleet_index} is below threshold '
+                        f'{str(int(threshold * 100))}%, '
+                        'use repair packs for repairs')
+            for index, repair in enumerate(check):
+                if repair:
+                    self.repair_pack_use(hp_grids.buttons[index])
+            logger.info(f'All ships in fleet {fleet_index} repaired')
+            self.hp_reset()
+            return True
+        else:
+            logger.info(f'No ship in fleet {fleet_index} found to be below threshold '
+                        f'{str(int(threshold * 100))}%, '
+                        'continue OS exploration')
+            self.hp_reset()
+            return False
+
+    def handle_storage_fleet_repair(self, fleet_index=None, revert=True):
+        """
+        Args:
+            fleet_index (None|int|list[int]): fleet index
+            revert (bool): If go back to previous zone.
+
+        Returns:
+            bool: If repaired.
+
+        Pages:
+            in: in_map
+            out: in_map
+        """
+        logger.hr('OS fleet repair by repair packs')
+        if fleet_index is None:
+            fleet_index = self.fleet_selector.get()
+        if isinstance(fleet_index, int):
+            fleet_index = [fleet_index]
+        if not isinstance(fleet_index, list):
+            logger.warning(f'Unknown fleet index: {fleet_index}')
+            return False
+        if self.config.OpsiGeneral_RepairPackThreshold < 0:
+            return False
+
+        repair = False
+        success = False
+        if self.storage_get_next_item('REPAIR_PACK'): 
+            for index in fleet_index:
+                if self.handle_storage_one_fleet_repair(fleet_index=index,
+                        threshold=self.config.OpsiGeneral_RepairPackThreshold):
+                    success = True
+                if any(self.need_repair):
+                    repair = True
+            self.storage_repair_cancel()
+            self.storage_quit()
+
+        if repair:
+            success = self.fleet_repair(revert=revert)
+
+        return success
+
+    def handle_fleet_repair_by_config(self, fleet_index=None, revert=True):
+        """
+        Args:
+            fleet_index (None|int|list[int]): fleet index
+                If None, fixed fleet in OpsiFleetFilter_Filter before current fleet, 
+                         submarine fleet is always the last fleet to repair if it exists in filter string    
+                E.g.: OpsiFleetFilter_Filter = 'Fleet-1 > CallSubmarine > Fleet-3 > Fleet-4 > Fleet-2'
+                      current fleet is fleet 1, repair fleet 1 and submarine fleet
+                      current fleet is fleet 4, repair fleet 1, fleet 3, fleet 4 and submarine fleet
+                If int, the number of fleet index
+                If list, a list of numbers of fleet index
+            revert (bool): If go back to previous zone.
+
+        Returns:
+            bool: If repaired.
+
+        Pages:
+            in: in_map
+            out: in_map
+        """
+        if self.config.OpsiGeneral_UseRepairPack and self.config.SERVER not in ['cn']:
+            logger.warning(f'OpsiDaily.SkipSirenResearchMission is not supported in {self.config.SERVER}')
+            self.config.OpsiGeneral_UseRepairPack = False
+
+        if self.config.OpsiGeneral_UseRepairPack:
+            if fleet_index is None:
+                fleet_current_index = self.fleet_selector.get()
+                submarine_fleet = self.storage_fleet_selector.SUBMARINE_FLEET
+                fleet_all_index = [fleet.fleet_index if isinstance(fleet, BossFleet) else submarine_fleet
+                                   for fleet in self.parse_fleet_filter()]
+                fleet_index = []
+                for index in fleet_all_index:
+                    fleet_index.append(index)
+                    if fleet_current_index == index:
+                        break
+                if submarine_fleet not in fleet_index and submarine_fleet in fleet_all_index:
+                    fleet_index.append(submarine_fleet)
+                elif submarine_fleet in fleet_index:
+                    fleet_index.remove(submarine_fleet)
+                    fleet_index.append(submarine_fleet)
+            logger.attr('Repair Fleet', fleet_index)
+            return self.handle_storage_fleet_repair(fleet_index=fleet_index, revert=revert)
+        else:
+            return self.fleet_repair(revert=revert)
+
     def fleet_resolve(self, revert=True):
         """
         Cure fleet's low resolve by going
@@ -392,35 +523,45 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
 
         return True
 
-    def get_action_point_limit(self):
+    def get_action_point_limit(self, preserve=False):
         """
         Override user config at the end of every month.
         To consume all action points without manual configuration.
 
+        Args:
+            preserve (bool): if preserve action points until OpSi reset
+
         Returns:
             int: ActionPointPreserve
         """
+        if preserve:
+            if self.config.is_task_enabled('OpsiCrossMonth'):
+                logger.info('Preserve action points until OpsiCrossMonth')
+                return maxsize
+            else:
+                logger.info('OpsiCrossMonth is not enabled, skip OpsiMeowfficerFarming.APPreserveUntilReset')
+
         remain = get_os_reset_remain()
         if remain <= 0:
             if self.config.is_task_enabled('OpsiCrossMonth'):
-                logger.info('Just less than 1 day to OpSi reset, OpsiCrossMonth is enabled'
-                            'set OpsiMeowfficerFarming.ActionPointPreserve to 300 temporarily')
-                return 300
+                logger.info('Just less than 1 day to OpSi reset, OpsiCrossMonth is enabled, '
+                            'set OpsiMeowfficerFarming.ActionPointPreserve to 500 temporarily')
+                return 500
             else:
                 logger.info('Just less than 1 day to OpSi reset, '
                             'set ActionPointPreserve to 0 temporarily')
                 return 0
         elif self.is_cl1_enabled and remain <= 2:
             logger.info('Just less than 3 days to OpSi reset, '
-                        'set ActionPointPreserve to 1000 temporarily for hazard 1 leveling')
-            return 1000
+                        'set ActionPointPreserve to 2000 temporarily for hazard 1 leveling')
+            return 2000
         elif remain <= 2:
             logger.info('Just less than 3 days to OpSi reset, '
-                        'set ActionPointPreserve to 300 temporarily')
-            return 300
+                        'set ActionPointPreserve to 500 temporarily')
+            return 500
         else:
             logger.info('Not close to OpSi reset')
-            return 2000
+            return maxsize
 
     def handle_after_auto_search(self):
         logger.hr('After auto search', level=2)
@@ -434,11 +575,12 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
         """
         Keeping enough startup AP to run CL1.
         """
-        if self.is_cl1_enabled and get_os_reset_remain() > 2 \
-                and self.get_yellow_coins() > self.config.OS_CL1_YELLOW_COINS_PRESERVE:
-            logger.info('Keep 1000 AP when CL1 available')
-            if not self.action_point_check(1000):
+        if self.is_cl1_enabled and get_os_reset_remain() > 2 and self.cl1_enough_yellow_coins:
+            preserve = self.config.cross_get(keys='OpsiMeowfficerFarming.OpsiMeowfficerFarming.ActionPointPreserve')
+            logger.info(f'Keep {preserve} AP when CL1 available')
+            if not self.action_point_check(preserve):
                 self.config.opsi_task_delay(cl1_preserve=True)
+                self.cl1_task_call()
                 self.config.task_stop()
 
     _auto_search_battle_count = 0
@@ -458,11 +600,12 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                     logger.attr('CL1 time cost', f'{cost}s/round')
                 self._auto_search_round_timer = time.time()
 
-    def os_auto_search_daemon(self, drop=None, strategic=False, skip_first_screenshot=True):
+    def os_auto_search_daemon(self, drop=None, strategic=False, interrupt=None, skip_first_screenshot=True):
         """
         Args:
             drop (DropRecord):
             strategic (bool): True if running in strategic search
+            interrupt (callable):
             skip_first_screenshot:
 
         Returns:
@@ -483,7 +626,18 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
         unlock_check_timer = Timer(5, count=10).start()
         self.ash_popup_canceled = False
 
+        def false_func(*args, **kwargs):
+            return False
+
         success = True
+        interrupt_confirm = False
+        if callable(interrupt):
+            is_interrupt, not_interrupt = interrupt, false_func
+        elif isinstance(interrupt, list) and len(interrupt) == 2:
+            is_interrupt = interrupt[0] if callable(interrupt[0]) else false_func
+            not_interrupt = interrupt[1] if callable(interrupt[1]) else false_func
+        else:
+            is_interrupt, not_interrupt = false_func, false_func
         finished_combat = 0
         died_timer = Timer(1.5, count=3)
         self.hp_reset()
@@ -506,6 +660,10 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                         logger.warning('Fleet died confirm')
                         break
                 else:
+                    if not interrupt_confirm and is_interrupt():
+                        interrupt_confirm = True
+                    if interrupt_confirm and not_interrupt():
+                        interrupt_confirm = False
                     died_timer.reset()
             else:
                 died_timer.reset()
@@ -532,6 +690,8 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                 self.on_auto_search_battle_count_add()
                 if strategic and self.config.task_switched():
                     self.interrupt_auto_search()
+                if interrupt_confirm:
+                    self.interrupt_auto_search(goto_main=False)
                 result = self.auto_search_combat(drop=drop)
                 if result:
                     finished_combat += 1
@@ -547,19 +707,23 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
 
         return finished_combat
 
-    def interrupt_auto_search(self, skip_first_screenshot=True):
+    def interrupt_auto_search(self, goto_main=True, skip_first_screenshot=True):
         """
+        Args:
+            goto_main (bool): If go to the page_main
+
         Raises:
             TaskEnd: If auto search interrupted
 
         Pages:
             in: Any, usually to be is_combat_executing
-            out: page_main
+            out: page_main or IN_MAP
         """
         logger.info('Interrupting auto search')
         is_loading = False
         pause_interval = Timer(0.5, count=1)
         in_main_timer = Timer(3, count=6)
+        in_map_timer = Timer(1, count=6)
         while 1:
             if skip_first_screenshot:
                 skip_first_screenshot = False
@@ -570,10 +734,15 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
             if self.is_in_main():
                 logger.info('Auto search interrupted')
                 self.config.task_stop()
+            if not goto_main and self.is_in_map():
+                if in_map_timer.reached():
+                    logger.info('Auto search interrupted')
+                    self.config.task_stop()
 
             if self.appear_then_click(AUTO_SEARCH_REWARD, offset=(50, 50), interval=3):
                 self.interval_clear(GOTO_MAIN)
                 in_main_timer.reset()
+                in_map_timer.reset()
                 continue
             if pause_interval.reached():
                 pause = self.is_combat_executing()
@@ -583,19 +752,22 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                     is_loading = False
                     pause_interval.reset()
                     in_main_timer.reset()
+                    in_map_timer.reset()
                     continue
             if self.handle_combat_quit():
                 self.interval_reset(MAINTENANCE_ANNOUNCE)
                 pause_interval.reset()
                 in_main_timer.reset()
+                in_map_timer.reset()
                 continue
             if self.appear_then_click(QUIT_RECONFIRM, offset=True, interval=5):
                 self.interval_reset(MAINTENANCE_ANNOUNCE)
                 pause_interval.reset()
                 in_main_timer.reset()
+                in_map_timer.reset()
                 continue
 
-            if self.appear_then_click(GOTO_MAIN, offset=(20, 20), interval=3):
+            if goto_main and self.appear_then_click(GOTO_MAIN, offset=(20, 20), interval=3):
                 in_main_timer.reset()
                 continue
             if self.ui_additional():
@@ -607,6 +779,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                 if self.is_combat_loading():
                     is_loading = True
                     in_main_timer.clear()
+                    in_map_timer.clear()
                     continue
                 # Random background from page_main may trigger EXP_INFO_*, don't check them
                 if in_main_timer.reached():
@@ -618,14 +791,15 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
             elif self.is_combat_executing():
                 is_loading = False
                 in_main_timer.clear()
+                in_map_timer.clear()
                 continue
 
-    def os_auto_search_run(self, drop=None, strategic=False):
+    def os_auto_search_run(self, drop=None, strategic=False, interrupt=None):
         """
         Args:
             drop (DropRecord):
             strategic (bool): True to use strategic search
-
+            interrupt (callable):
         Returns:
             int: Number of finished combat
         """
@@ -635,7 +809,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
             try:
                 if strategic:
                     self.strategic_search_start(skip_first_screenshot=True)
-                combat = self.os_auto_search_daemon(drop=drop, strategic=strategic)
+                combat = self.os_auto_search_daemon(drop=drop, strategic=strategic, interrupt=interrupt)
                 finished_combat += combat
             except CampaignEnd:
                 logger.info('OS auto search finished')
@@ -708,7 +882,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                        'this might be 2 adjacent fleet mechanism, stopped')
         return False
 
-    def run_auto_search(self, question=True, rescan=None, after_auto_search=True):
+    def run_auto_search(self, question=True, rescan=None, after_auto_search=True, interrupt=None):
         """
         Clear current zone by running auto search.
         OpSi story mode must be cleared to unlock auto search.
@@ -725,6 +899,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                 This option should be disabled in special tasks like OpsiObscure, OpsiAbyssal, OpsiStronghold.
             after_auto_search (bool):
                 Whether to call handle_after_auto_search() after auto search
+            interrupt (callable):
 
         Returns:
             int: Number of finished combat
@@ -742,7 +917,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
                 method=self.config.DropRecord_OpsiRecord
         ) as drop:
             while 1:
-                combat = self.os_auto_search_run(drop)
+                combat = self.os_auto_search_run(drop, interrupt=interrupt)
                 finished_combat += combat
 
                 # Record current zone, skip this if no rewards from auto search.
@@ -831,7 +1006,9 @@ class OSMap(OSFleet, Map, GlobeCamera, StrategicSearchHandler):
         if 'is_scanning_device' not in self._solved_map_event and grids and grids[0].is_scanning_device:
             grid = grids[0]
             logger.info(f'Found scanning device on {grid}')
-            if self.is_in_task_cl1_leveling:
+            cl1_do_scanning_device = self.config.cross_get(
+                    keys="OpsiHazard1Leveling.OpsiHazard1Leveling.DoScanningDevice")
+            if (self.is_in_task_cl1_leveling or self.zone.zone_id in [22, 44]) and not cl1_do_scanning_device:
                 logger.info('In CL1 leveling, mark scanning device as solved')
                 self._solved_map_event.add('is_scanning_device')
                 return True

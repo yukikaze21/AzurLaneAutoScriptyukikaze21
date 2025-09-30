@@ -42,15 +42,23 @@ class MissionHandler(GlobeOperation, ZoneManager):
     def is_in_os_mission(self):
         return self.appear(MISSION_CHECK, offset=(20, 20))
 
-    def os_mission_enter(self, skip_first_screenshot=True):
+    def os_mission_enter(self, skip_siren_mission=False, skip_first_screenshot=True):
         """
         Enter mission list and claim mission reward.
+
+        Args:
+            skip_siren_mission (bool): if skip siren research missions
+            skip_first_screenshot (bool):
+
+        Returns:
+            tuple: _button_offset of MISSION_CHECKOUT
 
         Pages:
             in: MISSION_ENTER
             out: MISSION_CHECK
         """
         logger.info('OS mission enter')
+        checkout_offset = (-20, -20, 20, 20)
         confirm_timer = Timer(2, count=6).start()
         while 1:
             if skip_first_screenshot:
@@ -60,14 +68,14 @@ class MissionHandler(GlobeOperation, ZoneManager):
 
             # End
             if self.is_in_os_mission() \
-                    and not self.appear(MISSION_FINISH, offset=(20, 20)) \
-                    and not self.match_template_color(MISSION_CHECKOUT, offset=(20, 20)):
+                    and not self.appear(MISSION_FINISH, offset=checkout_offset) \
+                    and not self.match_template_color(MISSION_CHECKOUT, offset=checkout_offset, similarity=0.78):
                 # No mission found, wait to confirm. Missions might not be loaded so fast.
                 if confirm_timer.reached():
                     logger.info('No OS mission found.')
                     break
             elif self.is_in_os_mission() \
-                    and self.match_template_color(MISSION_CHECKOUT, offset=(20, 20)):
+                    and self.match_template_color(MISSION_CHECKOUT, offset=checkout_offset, similarity=0.78):
                 # Found one mission.
                 logger.info('Found at least one OS missions.')
                 break
@@ -78,22 +86,31 @@ class MissionHandler(GlobeOperation, ZoneManager):
             if self.appear_then_click(MISSION_ENTER, offset=(200, 5), interval=5):
                 confirm_timer.reset()
                 continue
-            if self.appear_then_click(MISSION_FINISH, offset=(20, 20), interval=2):
-                confirm_timer.reset()
-                continue
-            if self.handle_popup_confirm('MISSION_FINISH'):
-                confirm_timer.reset()
-                continue
-            if self.handle_map_get_items():
-                confirm_timer.reset()
-                continue
-            if self.handle_info_bar():
-                confirm_timer.reset()
-                continue
+            if skip_siren_mission and self.appear(MISSION_SIREN_RESEARCH, offset=checkout_offset):
+                if self.appear(MISSION_FINISH, offset=checkout_offset):
+                    # approximate 110 pixels between two mission rows
+                    checkout_offset = area_offset(checkout_offset, (0, 110))
+                    confirm_timer.reset()
+                    continue
+            else:
+                if self.appear_then_click(MISSION_FINISH, offset=checkout_offset, interval=2):
+                    confirm_timer.reset()
+                    continue
+                if self.handle_popup_confirm('MISSION_FINISH'):
+                    confirm_timer.reset()
+                    continue
+                if self.handle_map_get_items():
+                    confirm_timer.reset()
+                    continue
+                if self.handle_info_bar():
+                    confirm_timer.reset()
+                    continue
+                
             if self.appear_then_click(GLOBE_GOTO_MAP, offset=(20, 20), interval=2):
                 # Accidentally entered globe
                 confirm_timer.reset()
                 continue
+        return checkout_offset
 
     def os_mission_quit(self, skip_first_screenshot=True):
         logger.info('OS mission quit')
@@ -113,25 +130,27 @@ class MissionHandler(GlobeOperation, ZoneManager):
             if self.appear_then_click(MISSION_QUIT, offset=(20, 20), interval=3):
                 continue
 
-    def os_get_next_mission(self):
+    def os_get_next_mission(self, skip_siren_mission=False):
         """
         Another method to get os mission. The old one is outdated.
         After clicking MISSION_CHECKOUT, AL switch to target zone directly instead of showing a meaningless map.
         If already at target zone, show info bar and close mission list.
 
+        Args:
+            skip_siren_mission (bool): if skip siren research missions
+
         Returns:
             str: pinned_at_mission_zone, already_at_mission_zone, pinned_at_archive_zone,
                 or False if no more mission.
         """
-        self.os_mission_enter()
+        checkout_offset = self.os_mission_enter(skip_siren_mission=skip_siren_mission)
 
-        checkout_offset = (20, 20)
-        if self.appear(MISSION_MONTHLY_BOSS, offset=(20, 20)):
+        if self.appear(MISSION_MONTHLY_BOSS, offset=checkout_offset):
             # If monthly BOSS hasn't been killed, there is always a task.
             logger.info('Monthly BOSS mission found, checking missions bellow it')
-            checkout_offset = (-20, 100, 20, 150)
+            checkout_offset = area_offset(checkout_offset, (0, 110))
 
-        if not self.match_template_color(MISSION_CHECKOUT, offset=checkout_offset):
+        if not self.match_template_color(MISSION_CHECKOUT, offset=checkout_offset, similarity=0.78):
             # If not having enough items to claim a mission,
             # there will still be MISSION_CHECKOUT, but button is transparent.
             # So here needs to use both template matching and color detection.
@@ -166,16 +185,19 @@ class MissionHandler(GlobeOperation, ZoneManager):
                 logger.info('Already at mission zone')
                 return 'already_at_mission_zone'
 
-            if self.appear_then_click(MISSION_CHECKOUT, offset=checkout_offset, interval=2):
+            if self.appear_then_click(MISSION_CHECKOUT, offset=checkout_offset, interval=2, similarity=0.78):
                 continue
             if self.handle_popup_confirm('OS_MISSION_CHECKOUT'):
                 # Popup: Submarine will retreat after exiting current zone.
                 continue
 
-    def os_mission_overview_accept(self):
+    def os_mission_overview_accept(self, skip_siren_mission=False, skip_first_screenshot=True):
         """
         Accept all missions in mission overview.
 
+        Args:
+            skip_siren_mission (bool): if skip siren research missions
+            skip_first_screenshot (bool):
         Returns:
             bool: True if all missions accepted or no mission found.
                   False if unable to accept more missions.
@@ -193,8 +215,6 @@ class MissionHandler(GlobeOperation, ZoneManager):
                       skip_first_screenshot=True)
 
         # MISSION_OVERVIEW_CHECK
-        confirm_timer = Timer(1, count=3).start()
-        skip_first_screenshot = True
         success = True
         while 1:
             if skip_first_screenshot:
@@ -202,23 +222,28 @@ class MissionHandler(GlobeOperation, ZoneManager):
             else:
                 self.device.screenshot()
 
+            # End
             if self.handle_manjuu():
-                confirm_timer.reset()
                 continue
             if self.info_bar_count():
-                logger.info('Unable to accept missions, because reached the maximum number of missions')
-                success = False
-                break
-            if self.appear_then_click(MISSION_OVERVIEW_ACCEPT, offset=(20, 20), interval=0.2):
-                confirm_timer.reset()
-                continue
-            else:
-                # End
-                if confirm_timer.reached():
+                if skip_siren_mission:
+                    logger.info('Unable to accept missions, '
+                                'because there are multiple Siren Research missions with the same name')
                     success = True
-                    break
-            if self.appear_then_click(MISSION_OVERVIEW_ACCEPT_SINGLE, offset=(20, 20), interval=0.2):
-                confirm_timer.reset()
+                else:
+                    logger.info('Unable to accept missions, because reached the maximum number of missions')
+                    success = False
+                break
+            if self.appear(MISSION_OVERVIEW_EMPTY, offset=(20, 20)):
+                logger.info('No more missions to accept')
+                success = True
+                break
+
+            if self.appear_then_click(MISSION_OVERVIEW_ACCEPT, offset=(20, 20), interval=2):
+                self.interval_reset(MISSION_OVERVIEW_ACCEPT_SINGLE)
+                continue
+            if self.appear_then_click(MISSION_OVERVIEW_ACCEPT_SINGLE, offset=(20, 20), interval=2):
+                self.interval_reset(MISSION_OVERVIEW_ACCEPT)
                 continue
 
         # is_in_globe

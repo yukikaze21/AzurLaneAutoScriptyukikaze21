@@ -24,6 +24,10 @@ class CampaignEvent(CampaignStatus):
                 keys = f'{task}.Scheduler.Enable'
                 logger.info(f'Disable task `{task}`')
                 self.config.cross_set(keys=keys, value=False)
+                keys = f'{task}.Emotion.Fleet1Onsen'
+                self.config.cross_set(keys=keys, value=False)
+                keys = f'{task}.Emotion.Fleet2Onsen'
+                self.config.cross_set(keys=keys, value=False)
 
             # Reset GemsFarming
             for task in tasks:
@@ -53,6 +57,7 @@ class CampaignEvent(CampaignStatus):
         tasks = EVENTS + RAIDS + COALITIONS + GEMS_FARMINGS + HOSPITAL
         command = self.config.Scheduler_Command
         if limit <= 0 or command not in tasks:
+            self.get_event_pt()
             return False
         if command in GEMS_FARMINGS and self.stage_is_main(self.config.Campaign_Name):
             return False
@@ -98,8 +103,10 @@ class CampaignEvent(CampaignStatus):
         Pages:
             in: page_event or page_sp
         """
+        from module.config.deep import deep_get
         limit = self.config.TaskBalancer_CoinLimit
-        coin = self.get_coin()
+        coin = deep_get(self.config.data, 'Dashboard.Coin.Value')
+        logger.attr('Coin Count', coin)
         # Check Coin
         if coin == 0:
             # Avoid wrong/zero OCR result
@@ -116,11 +123,12 @@ class CampaignEvent(CampaignStatus):
                 return False
 
     def handle_task_balancer(self):
-        self.config.task_delay(minute=5)
-        next_task = self.config.TaskBalancer_TaskCall
-        logger.hr(f'TaskBalancer triggered, switching task to {next_task}')
-        self.config.task_call(next_task)
-        self.config.task_stop()
+        if self.config.TaskBalancer_Enable and self.triggered_task_balancer():
+            self.config.task_delay(minute=5)
+            next_task = self.config.TaskBalancer_TaskCall
+            logger.hr(f'TaskBalancer triggered, switching task to {next_task}')
+            self.config.task_call(next_task)
+            self.config.task_stop()
 
     def is_event_entrance_available(self):
         """

@@ -27,6 +27,7 @@
       "Event2",
       "Raid",
       "Hospital",
+      "HospitalEvent",
       "Coalition",
       "MaritimeEscort",
       "WarArchives"
@@ -103,6 +104,7 @@
       "Daemon",
       "OpsiDaemon",
       "EventStory",
+      "BoxDisassemble",
       "Benchmark",
       "AzurLaneUncensored",
       "GameManager"

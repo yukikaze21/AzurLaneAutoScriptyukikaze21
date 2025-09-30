@@ -79,6 +79,10 @@
       "help": ""
     },
     "Hospital": {
+      "name": "深谷来信劇情",
+      "help": ""
+    },
+    "HospitalEvent": {
       "name": "深谷来信",
       "help": ""
     },
@@ -266,6 +270,10 @@
       "name": "活動劇情",
       "help": ""
     },
+    "BoxDisassemble": {
+      "name": "拆裝備箱",
+      "help": ""
+    },
     "Benchmark": {
       "name": "性能測試",
       "help": ""
@@ -347,8 +355,8 @@
       "com.hkmanjuu.azurlane.gp.mc": "台服 MyCard渠道服 com.hkmanjuu.azurlane.gp.mc"
     },
     "ServerName": {
-      "name": "Emulator.ServerName.name",
-      "help": "Emulator.ServerName.help",
+      "name": "遊戲內伺服器",
+      "help": "選擇遊戲內所在的伺服器以啟用伺服器狀態檢測\n當伺服器維護或網絡不可用時掛起直到恢復",
       "disabled": "不使用檢測",
       "cn_android-0": "[国服] 莱茵演习",
       "cn_android-1": "[国服] 巴巴罗萨",
@@ -495,6 +503,10 @@
     "SaveError": {
       "name": "出錯時，保存 Log 和截圖",
       "help": ""
+    },
+    "StrictRestart": {
+      "name": "敏感任務出錯時禁止重啟",
+      "help": "運行敏感任務出錯時停止Alas，而不是重啟遊戲\n敏感任務包含隱秘海域、深淵海域、跨月每日"
     },
     "OnePushConfig": {
       "name": "錯誤推送設定",
@@ -856,6 +868,7 @@
       "name": "達成地圖成就後停止",
       "help": "達成地圖 100% 通關、達成三星通關、達成安全海域\n或達成安全海域但不打三星後停止",
       "non_stop": "否",
+      "non_stop_clear_all": "不停止 + 每把都全清",
       "100_percent_clear": "100%通關",
       "map_3_stars": "100%通關 + 三星",
       "threat_safe": "100%通關 + 三星 + 安全海域",
@@ -1030,6 +1043,10 @@
       "name": "一隊全員已婚 (+10/h)",
       "help": ""
     },
+    "Fleet1Onsen": {
+      "name": "一隊全員已放置溫泉 (+10/h)",
+      "help": ""
+    },
     "Fleet2Value": {
       "name": "二隊心情值",
       "help": ""
@@ -1055,6 +1072,10 @@
     },
     "Fleet2Oath": {
       "name": "二隊全員已婚 (+10/h)",
+      "help": ""
+    },
+    "Fleet2Onsen": {
+      "name": "二隊全員已放置溫泉 (+10/h)",
       "help": ""
     }
   },
@@ -1174,26 +1195,32 @@
   "GemsFarming": {
     "_info": {
       "name": "刷緊急委託",
-      "help": "警告：這個功能可以讓玩家獲取少量的鑽石，但不是一個能高效獲取鑽石的方法\n玩碧藍航線不久的玩家，很容易迷信零破和低耗等，而忽視了角色養成\n執行這個功能只會讓你自己感覺很充實，而你的帳號實際零提升\n這個功能的主要用途，是讓陣容成型的玩家獲取額外的魔方，請理性地把鑽石當作副產物\n\n這個功能將在旗艦32級之後更換旗艦\n關於緊急委託刷新機制，可閱讀 https://bbs.nga.cn/read.php?tid=27134956\n委託油耗比: A3 > A1 > 2-4 > 2-1，有活動圖時建議選活動圖，2-1會撿問號有更多物資\n一隊會完成所有的戰鬥，前排應當為百級零破驅逐帶輸出裝，後排應該為33級及以下白船零破航母\n二隊應提供跨隊支援（跨隊彈幕、跨隊輔助）"
+      "help": "警告：這個功能可以讓玩家獲取少量的鑽石，但不是一個能高效獲取鑽石的方法\n玩碧藍航線不久的玩家，很容易迷信零破和低耗等，而忽視了角色養成\n執行這個功能只會讓你自己感覺很充實，而你的帳號實際零提升\n這個功能的主要用途，是讓陣容成型的玩家獲取額外的魔方，請理性地把鑽石當作副產物\n\n這個功能將在旗艦32級之後更換旗艦\n關於緊急委託刷新機制，可閱讀 https://bbs.nga.cn/read.php?tid=27134956\n委託油耗比: A3 > A1 > 2-4 > 2-1，有活動圖時建議選活動圖，2-1會撿問號有更多物資\n一隊會完成所有的戰鬥，前排應當為百級零破驅逐帶輸出裝，後排應該為33級及以下白船零破航母\n二隊應提供跨隊支援（跨隊彈幕、跨隊輔助）無法設定艦隊職能時，以以下管道停止任務以免跨隊隊伍出擊，石油被大量消耗：\n若設定了錯誤推送則推送任務停止的消息並停止該任務。 \n若沒有設定錯誤推送，則直接停止Alas。"
     },
     "ChangeFlagship": {
       "name": "更換旗艦",
-      "help": "當旗艦等級>=32或紅臉時更換旗艦，選擇不更換則會強制紅臉出擊\n尋找等級在1-31之間的白皮航母，同時會在退役時選擇更換下來的旗艦。所有等級大於1級的白船航母均會被視為退役目標，請務必鎖定不是目標的船。換船時更換旗艦裝備，這通過記錄之前的裝備完成。\n\n換裝備只會更換正在裝備中的欄位，即使是白裝也會更換。如果指定了旗艦，則會更換全部5個裝備，未指定旗艦隻會更換設備。",
+      "help": "當旗艦等級>=32或紅臉時更換旗艦，選擇不更換則會強制紅臉出擊\n尋找等級在1-31之間的白皮航母，同時會在退役時選擇更換下來的旗艦。所有等級大於1級的白船航母均會被視為退役目標，請務必鎖定不是目標的船。換船時更換旗艦裝備，這通過記錄之前的裝備碼到配寘中來完成。",
       "ship": "更換艦船",
       "ship_equip": "更換艦船 + 裝備"
     },
     "CommonCV": {
       "name": "指定旗艦航母",
       "help": "",
+      "custom": "自定義",
       "any": "任意",
+      "eagle": "僅白鷹",
       "langley": "蘭利",
       "bogue": "博格",
       "ranger": "突擊者",
       "hermes": "競技神"
     },
+    "CommonCVFilter": {
+      "name": "自定義旗艦航母過濾器",
+      "help": "使用自定義過濾器需將 \"指定旗艦航母\" 設定為 \"自定義\"，將按照過濾器順序優先選擇旗艦航母更換\nbogue：博格    ranger：突擊者    langley：蘭利    hermes：競技神"
+    },
     "ChangeVanguard": {
       "name": "更換前排",
-      "help": "當前排紅臉時更換前排，選擇不更換則會強制紅臉出擊\n換前排通過找一艘心情不低於10、等級70的白鷹或鐵血的白船驅逐完成，所以盡量保證有足夠多的驅逐。國服則為等級100的白鷹白船驅逐。\n\n換裝備只會更換正在裝備中的欄位，即使是白裝也會更換。前排會更換全部5個裝備。",
+      "help": "當前排紅臉時更換前排，選擇不更換則會強制紅臉出擊\n換前排通過找一艘心情不低於10、等級70的白鷹或鐵血的白船驅逐完成，所以盡量保證有足夠多的驅逐。國服則為等級100的白鷹白船驅逐。",
       "disabled": "不更换",
       "ship": "更換艦船",
       "ship_equip": "更換艦船 + 裝備"
@@ -1201,11 +1228,33 @@
     "CommonDD": {
       "name": "指定前排",
       "help": "",
+      "custom": "自定義",
       "any": "任意",
       "favourite": "僅常用",
       "aulick_or_foote": "奧利克或富特",
       "cassin_or_downes": "卡辛或唐斯",
-      "z20_or_z21": "Z20或Z21"
+      "z20_or_z21": "Z20或Z21",
+      "DDG": "導驅"
+    },
+    "CommonDDFilter": {
+      "name": "自定義前排過濾器",
+      "help": "使用自定義過濾器需將 \"指定前排\" 設定為 \"自定義\"，將按照過濾器順序優先選擇前排更換\nz20：Z20    z21：Z21    aulick：奥利克    foote：富特    cassin：卡辛    downes：唐斯"
+    },
+    "EquipmentCode": {
+      "name": "裝備碼",
+      "help": "僅當選擇「更換艦船 + 裝備」時生效。\n在換下艦船時，若設定裏當前艦船裝備碼為null則會導出；在換上艦船時，若設定裏當前艦船裝備碼為null則會使用上一艘艦船導出的裝備碼，否則使用設定裏的裝備碼\n藍疊模擬器用戶需要先開啟虛擬鍵盤，詳見https://support.bluestacks.com/hc/zh-tw/articles/360061968892-%E5%A6%82%E4%BD%95%E5%9C%A8-BlueStacks-5-%E4%B8%8A%E4%BD%BF%E7%94%A8%E5%B0%8F%E9%8D%B5%E7%9B%A4-%E8%99%9B%E6%93%AC%E9%8D%B5%E7%9B%A4\nDD：前排驅逐    bogue：博格    hermes：競技神    langley：蘭利    ranger：突擊者"
+    },
+    "ALLowHighFlagshipLevel": {
+      "name": "仅更换满级后排",
+      "help": "打開後，更換旗艦時僅會選擇70級的白皮輕航。 \n使用時請保證船塢中有符合條件的艦船。"
+    },
+    "ALLowLowVanguardLevel": {
+      "name": "可更換低等級前排",
+      "help": "打開後，前排等級限制改為30级以上。 若為困難模式（如CD圖）則改為70級。"
+    },
+    "DelayTaskIFNoFlagship": {
+      "name": "沒有可更換的旗艦時延后任務",
+      "help": "更換旗艦時，若找不到滿足條件的白皮航母，則延后任務"
     },
     "CommissionLimit": {
       "name": "防止緊急委託數量過多",
@@ -1297,6 +1346,28 @@
     "UseRecommendFleet": {
       "name": "使用艦隊推薦",
       "help": "如果關閉，需要事先手動為所有15個關卡配隊"
+    }
+  },
+  "HospitalEvent": {
+    "_info": {
+      "name": "共鬥活動設定",
+      "help": ""
+    },
+    "Mode": {
+      "name": "難度",
+      "help": "",
+      "easy": "正午",
+      "normal": "黃昏",
+      "hard": "夜晚"
+    },
+    "Stage": {
+      "name": "地圖名稱",
+      "help": "",
+      "T1": "T1",
+      "T2": "T2",
+      "T3": "T3",
+      "T4": "T4",
+      "ESP": "ESP"
     }
   },
   "MaritimeEscort": {
@@ -2227,6 +2298,16 @@
       "name": "演習",
       "help": "打演習，血量過低時自動撤退"
     },
+    "DelayUntilHoursBeforeNextUpdate": {
+      "name": "延後演習至下次更新次數前 X 小時",
+      "help": "",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "12": "不延後"
+    },
     "OpponentChooseMode": {
       "name": "對手選擇模式",
       "help": "",
@@ -2322,6 +2403,14 @@
     "RepairThreshold": {
       "name": "任意艦船血量低於 X 後，回港修理",
       "help": "0.0 ~ 1.0"
+    },
+    "UseRepairPack": {
+      "name": "使用維修箱修船",
+      "help": "開啟後，將使用倉庫內的維修箱修船，建議配合侵蝕1練級功能使用"
+    },
+    "RepairPackThreshold": {
+      "name": "任意艦船血量低於 X 後，使用維修箱修理",
+      "help": "僅在開啟“使用維修箱修船”時生效\n僅在打完深淵海域、塞壬要塞、月度Boss後嘗試維修\n0.0 ~ 1.0"
     },
     "DoRandomMapEvent": {
       "name": "完成地圖隨機事件",
@@ -2423,6 +2512,10 @@
     "CustomFilter": {
       "name": "自定義過濾器",
       "help": "使用自定義過濾器需將 \"港口商店過濾器\" 設定為 \"自定義\"，並閱讀 https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/filter_string_cn"
+    },
+    "DisableBeforeDate": {
+      "name": "每月 X 號前，不購買大世界商店",
+      "help": "從指定日期的後一天開始，每天買一次大世界商店\n0 表示不限制，每天都購買"
     }
   },
   "OpsiVoucher": {
@@ -2447,12 +2540,28 @@
     "UseTuningSample": {
       "name": "使用效能樣本",
       "help": "使用所有六種效能樣本和強力效能樣本"
+    },
+    "SkipSirenResearchMission": {
+      "name": "不做塞壬研究任務",
+      "help": "開啟後，將跳過“塞壬研究·I”與“塞壬研究·II”兩個任務\n塞壬研究任務使用黃幣兌換紫幣"
+    },
+    "KeepMissionZone": {
+      "name": "保留海域不清理",
+      "help": "完成每日任務後退出海域，下次任務刷在同一海域時不用再消耗行動力進入\n每個月的最後一天會對所有未清理海域進行清理"
+    },
+    "MissionZones": {
+      "name": "月底需要清理的海域",
+      "help": "這個數值是自動記錄的，一般不需要修改"
     }
   },
   "OpsiObscure": {
     "_info": {
       "name": "隱秘海域",
       "help": "每隔27分鍾清理一個隱秘海域，以保證空域搜索冷卻\n使用此功能前必須滿足以下條件：\n- 通關大世界主線任務並完成模擬戰+塞壬試驗場\n- 開啟大世界開荒任務或使用戰役信息記錄儀（5000油道具）"
+    },
+    "SkipHazard2Obscure": {
+      "name": "不清理2級座標",
+      "help": "開啟後，將不會打侵蝕等級為2的隱秘海域"
     },
     "ForceRun": {
       "name": "無視執行間隔強制執行",
@@ -2474,9 +2583,17 @@
       "name": "塞壬要塞",
       "help": "清理每週的塞壬要塞\n使用此功能前必須滿足以下條件：\n- 通關大世界主線任務並完成模擬戰+塞壬試驗場\n- 開啟大世界開荒任務或使用戰役信息記錄儀（5000油道具）"
     },
+    "SubmarineEveryCombat": {
+      "name": "潜艇每戰出擊",
+      "help": "開啟後，如果出擊艦隊篩檢程式中存在潜艇編隊，則當潜艇編隊彈藥耗盡時，退出塞壬要塞並延后任務"
+    },
     "ForceRun": {
       "name": "無視運行間隔強制運行",
       "help": "開啟後將帶來額外的行動力消耗，一般不用打開，慢慢打就好"
+    },
+    "HasStronghold": {
+      "name": "上次運行任務時是否找到塞壬要塞",
+      "help": "這個數值是自動記錄的，一般不需要修改"
     }
   },
   "OpsiMonthBoss": {
@@ -2511,6 +2628,7 @@
     "HazardLevel": {
       "name": "侵蝕等級",
       "help": "按順時針出擊特定侵蝕等級的海域\n建議選 5 或 3 ，有更高的 貓點/行動力 比",
+      "2": "2",
       "3": "3",
       "4": "4",
       "5": "5",
@@ -2520,12 +2638,16 @@
     "TargetZone": {
       "name": "指定海域",
       "help": "僅出擊指定的海域，可以用來獲取大世界成就星星\n自動更新的數值，填0可重置進度，重置後自動跳過已開荒的海域\n支援海域ID、國服/國際服/日服/台服海域名稱，例如 \"51\", \"NA海域東南E\", \"NA Ocean SE Sector E\"\n填入默認值0，或者刪除數值即可取消指定"
+    },
+    "APPreserveUntilReset": {
+      "name": "保留行動力直到月底",
+      "help": "\"保留 X 點行動力\" 設定不會在大世界重置前幾天减少\n注意：開啟後只會在跨月每日任務中消耗這些行動力，未啟用跨月每日任務時該設定無效，這意味著你需要手動使用這些行動力以獲得更高的收益"
     }
   },
   "OpsiHazard1Leveling": {
     "_info": {
       "name": "侵蝕1練級",
-      "help": "消耗作戰補給憑證以獲取大量經驗和少量行動力\n推薦攜帶1-2艘預裝填航母以獲取最高的時均收益\n\n為了避免無法購買港口商店的商品，Alas會保留100000作戰補給憑證\n由於在神秘商店購買行動力需要大量作戰補給憑證，啟用本功能後會使用溢出行動力運行短猫相接來補充"
+      "help": "消耗作戰補給憑證以獲取大量經驗和少量行動力\n推薦攜帶1-2艘預裝填航母以獲取最高的時均收益\n\n為了避免無法購買港口商店的商品，Alas會默認保留100000作戰補給憑證\n由於在神秘商店購買行動力需要大量作戰補給憑證，啟用本功能後會使用溢出行動力運行短猫相接來補充"
     },
     "TargetZone": {
       "name": "指定海域",
@@ -2533,6 +2655,14 @@
       "0": "不指定",
       "44": "44 | 西大陸棚D",
       "22": "22 | NA海域西南B"
+    },
+    "OperationCoinsPreserve": {
+      "name": "保留 X 個作戰補給憑證",
+      "help": "作戰補給憑證低於 X 時運行短猫相接，不建議修改"
+    },
+    "DoScanningDevice": {
+      "name": "做塞壬探測裝置",
+      "help": "消耗紫幣換取黃幣，可能會導致紫幣不足"
     }
   },
   "Daemon": {
@@ -2569,6 +2699,36 @@
       "help": "",
       "True": "已启用",
       "False": "False"
+    }
+  },
+  "BoxDisassemble": {
+    "_info": {
+      "name": "折開裝備箱",
+      "help": "折開倉庫中的裝備箱子，配寘完成後啟動並等待即可"
+    },
+    "UsePurpleBox": {
+      "name": "折開紫色裝備箱",
+      "help": ""
+    },
+    "PurpleBoxLimit": {
+      "name": "保留每種紫色裝備箱 X 個",
+      "help": ""
+    },
+    "UseBlueBox": {
+      "name": "折開藍色裝備箱",
+      "help": ""
+    },
+    "BlueBoxLimit": {
+      "name": "保留每種藍色裝備箱 X 個",
+      "help": ""
+    },
+    "UseWhiteBox": {
+      "name": "折開白色裝備箱",
+      "help": ""
+    },
+    "WhiteBoxLimit": {
+      "name": "保留每種白色裝備箱 X 個",
+      "help": ""
     }
   },
   "Benchmark": {
@@ -2613,6 +2773,234 @@
       "help": "遊戲被強制結束後自動登錄遊戲"
     }
   },
+  "Oil": {
+    "_info": {
+      "name": "Oil._info.name",
+      "help": "Oil._info.help"
+    },
+    "Value": {
+      "name": "Oil.Value.name",
+      "help": "Oil.Value.help"
+    },
+    "Limit": {
+      "name": "Oil.Limit.name",
+      "help": "Oil.Limit.help"
+    },
+    "Color": {
+      "name": "Oil.Color.name",
+      "help": "Oil.Color.help"
+    },
+    "Record": {
+      "name": "Oil.Record.name",
+      "help": "Oil.Record.help"
+    }
+  },
+  "Coin": {
+    "_info": {
+      "name": "Coin._info.name",
+      "help": "Coin._info.help"
+    },
+    "Value": {
+      "name": "Coin.Value.name",
+      "help": "Coin.Value.help"
+    },
+    "Limit": {
+      "name": "Coin.Limit.name",
+      "help": "Coin.Limit.help"
+    },
+    "Color": {
+      "name": "Coin.Color.name",
+      "help": "Coin.Color.help"
+    },
+    "Record": {
+      "name": "Coin.Record.name",
+      "help": "Coin.Record.help"
+    }
+  },
+  "Gem": {
+    "_info": {
+      "name": "Gem._info.name",
+      "help": "Gem._info.help"
+    },
+    "Value": {
+      "name": "Gem.Value.name",
+      "help": "Gem.Value.help"
+    },
+    "Color": {
+      "name": "Gem.Color.name",
+      "help": "Gem.Color.help"
+    },
+    "Record": {
+      "name": "Gem.Record.name",
+      "help": "Gem.Record.help"
+    }
+  },
+  "Pt": {
+    "_info": {
+      "name": "Pt._info.name",
+      "help": "Pt._info.help"
+    },
+    "Value": {
+      "name": "Pt.Value.name",
+      "help": "Pt.Value.help"
+    },
+    "Color": {
+      "name": "Pt.Color.name",
+      "help": "Pt.Color.help"
+    },
+    "Record": {
+      "name": "Pt.Record.name",
+      "help": "Pt.Record.help"
+    }
+  },
+  "YellowCoin": {
+    "_info": {
+      "name": "YellowCoin._info.name",
+      "help": "YellowCoin._info.help"
+    },
+    "Value": {
+      "name": "YellowCoin.Value.name",
+      "help": "YellowCoin.Value.help"
+    },
+    "Color": {
+      "name": "YellowCoin.Color.name",
+      "help": "YellowCoin.Color.help"
+    },
+    "Record": {
+      "name": "YellowCoin.Record.name",
+      "help": "YellowCoin.Record.help"
+    }
+  },
+  "PurpleCoin": {
+    "_info": {
+      "name": "PurpleCoin._info.name",
+      "help": "PurpleCoin._info.help"
+    },
+    "Value": {
+      "name": "PurpleCoin.Value.name",
+      "help": "PurpleCoin.Value.help"
+    },
+    "Color": {
+      "name": "PurpleCoin.Color.name",
+      "help": "PurpleCoin.Color.help"
+    },
+    "Record": {
+      "name": "PurpleCoin.Record.name",
+      "help": "PurpleCoin.Record.help"
+    }
+  },
+  "ActionPoint": {
+    "_info": {
+      "name": "ActionPoint._info.name",
+      "help": "ActionPoint._info.help"
+    },
+    "Value": {
+      "name": "ActionPoint.Value.name",
+      "help": "ActionPoint.Value.help"
+    },
+    "Total": {
+      "name": "ActionPoint.Total.name",
+      "help": "ActionPoint.Total.help"
+    },
+    "Color": {
+      "name": "ActionPoint.Color.name",
+      "help": "ActionPoint.Color.help"
+    },
+    "Record": {
+      "name": "ActionPoint.Record.name",
+      "help": "ActionPoint.Record.help"
+    }
+  },
+  "Merit": {
+    "_info": {
+      "name": "Merit._info.name",
+      "help": "Merit._info.help"
+    },
+    "Value": {
+      "name": "Merit.Value.name",
+      "help": "Merit.Value.help"
+    },
+    "Color": {
+      "name": "Merit.Color.name",
+      "help": "Merit.Color.help"
+    },
+    "Record": {
+      "name": "Merit.Record.name",
+      "help": "Merit.Record.help"
+    }
+  },
+  "Cube": {
+    "_info": {
+      "name": "Cube._info.name",
+      "help": "Cube._info.help"
+    },
+    "Value": {
+      "name": "Cube.Value.name",
+      "help": "Cube.Value.help"
+    },
+    "Color": {
+      "name": "Cube.Color.name",
+      "help": "Cube.Color.help"
+    },
+    "Record": {
+      "name": "Cube.Record.name",
+      "help": "Cube.Record.help"
+    }
+  },
+  "Core": {
+    "_info": {
+      "name": "Core._info.name",
+      "help": "Core._info.help"
+    },
+    "Value": {
+      "name": "Core.Value.name",
+      "help": "Core.Value.help"
+    },
+    "Color": {
+      "name": "Core.Color.name",
+      "help": "Core.Color.help"
+    },
+    "Record": {
+      "name": "Core.Record.name",
+      "help": "Core.Record.help"
+    }
+  },
+  "Medal": {
+    "_info": {
+      "name": "Medal._info.name",
+      "help": "Medal._info.help"
+    },
+    "Value": {
+      "name": "Medal.Value.name",
+      "help": "Medal.Value.help"
+    },
+    "Color": {
+      "name": "Medal.Color.name",
+      "help": "Medal.Color.help"
+    },
+    "Record": {
+      "name": "Medal.Record.name",
+      "help": "Medal.Record.help"
+    }
+  },
+  "GuildCoin": {
+    "_info": {
+      "name": "GuildCoin._info.name",
+      "help": "GuildCoin._info.help"
+    },
+    "Value": {
+      "name": "GuildCoin.Value.name",
+      "help": "GuildCoin.Value.help"
+    },
+    "Color": {
+      "name": "GuildCoin.Color.name",
+      "help": "GuildCoin.Color.help"
+    },
+    "Record": {
+      "name": "GuildCoin.Record.name",
+      "help": "GuildCoin.Record.help"
+    }
+  },
   "Storage": {
     "_info": {
       "name": "任務狀態",
@@ -2637,6 +3025,8 @@
       "Stop": "停止",
       "ScrollON": "自動滾動 開",
       "ScrollOFF": "自動滾動 關",
+      "DashboardON": "開",
+      "DashboardOFF": "關",
       "ClearLog": "清空日誌",
       "Setting": "設定",
       "CheckUpdate": "檢查更新",
@@ -2669,6 +3059,26 @@
     },
     "Overview": {
       "Scheduler": "調度器",
+      "Dashboard": "Gui.Overview.Dashboard",
+      "SecondsAgo": "秒前",
+      "MinutesAgo": "分鐘前",
+      "HoursAgo": "小時前",
+      "DaysAgo": "天前",
+      "MonthsAgo": "月前",
+      "YearsAgo": "年前",
+      "NoData": "無數據",
+      "Oil": "石油",
+      "Coin": "物資",
+      "Gem": "鑽石",
+      "Cube": "魔方",
+      "Pt": "活動PT",
+      "YellowCoin": "大世界黃幣",
+      "PurpleCoin": "大世界紫幣",
+      "ActionPoint": "行動力",
+      "Merit": "功勳",
+      "Medal": "勳章",
+      "Core": "覈心數據",
+      "GuildCoin": "艦隊幣",
       "Log": "日誌",
       "Running": "執行中",
       "Pending": "佇列中",

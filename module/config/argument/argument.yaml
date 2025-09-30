@@ -83,6 +83,7 @@ EmulatorInfo:
 Error:
   HandleError: true
   SaveError: true
+  StrictRestart: false
   OnePushConfig:
     type: textarea
     mode: yaml
@@ -162,7 +163,7 @@ StopCondition:
   RunCount: 0
   MapAchievement:
     value: non_stop
-    option: [ non_stop, 100_percent_clear, map_3_stars, threat_safe, threat_safe_without_3_stars ]
+    option: [ non_stop, non_stop_clear_all, 100_percent_clear, map_3_stars, threat_safe, threat_safe_without_3_stars ]
   StageIncrease: false
   GetNewShip: false
   ReachLevel: 0
@@ -222,6 +223,7 @@ Emotion:
     value: not_in_dormitory
     option: [ not_in_dormitory, dormitory_floor_1, dormitory_floor_2 ]
   Fleet1Oath: false
+  Fleet1Onsen: false
   Fleet2Value: 119
   Fleet2Record:
     value: 2020-01-01 00:00:00
@@ -233,6 +235,7 @@ Emotion:
     value: not_in_dormitory
     option: [ not_in_dormitory, dormitory_floor_1, dormitory_floor_2 ]
   Fleet2Oath: false
+  Fleet2Onsen: false
 HpControl:
   UseHpBalance: false
   UseEmergencyRepair: false
@@ -266,18 +269,34 @@ C124LargeLeveling:
     option: [ 3, 4, 5 ]
 GemsFarming:
   ChangeFlagship:
-    value: ship
+    value: ship_equip
     option: [ ship, ship_equip ]
   CommonCV:
     value: any
-    option: [ any, langley, bogue, ranger, hermes ]
+    option: [ custom, any, eagle, langley, bogue, ranger, hermes ]
+  CommonCVFilter: |-
+    bogue > ranger > langley > hermes
   ChangeVanguard:
-    value: ship
+    value: ship_equip
     option: [ disabled, ship, ship_equip ]
   CommonDD:
     value: any
-    option: [ any, favourite, aulick_or_foote , cassin_or_downes, z20_or_z21 ]
-  CommissionLimit: true
+    option: [ custom, any, favourite, aulick_or_foote , cassin_or_downes, z20_or_z21, DDG]
+  CommonDDFilter: |-
+    z20 > z21 > aulick > foote > cassin > downes
+  EquipmentCode:
+    type: textarea
+    mode: yaml
+    value: |-
+      DD: null
+      bogue: null
+      hermes: null
+      langley: null
+      ranger: null
+  ALLowHighFlagshipLevel: false
+  ALLowLowVanguardLevel: false
+  DelayTaskIFNoFlagship: false
+  CommissionLimit: false
 
 # ==================== Event ====================
 
@@ -304,6 +323,13 @@ RaidDaily:
     hard > normal > easy
 Hospital:
   UseRecommendFleet: true
+HospitalEvent:
+  Mode:
+    value: hard
+    option: [ easy, normal, hard ]
+  Stage:
+    value: T1
+    option: [ T1, T2, T3, T4, ESP ]
 MaritimeEscort:
   Enable: true
 Coalition:
@@ -452,7 +478,7 @@ Reward:
   CollectCoin: true
   CollectExp: true
   CollectMission: true
-  CollectWeeklyMission: true
+  CollectWeeklyMission: false
 Awaken:
   LevelCap:
     value: level120
@@ -641,6 +667,9 @@ Hard:
     value: 1
     option: [ 1, 2 ]
 Exercise:
+  DelayUntilHoursBeforeNextUpdate:
+    value: 12
+    option: [ 1, 2, 3, 4, 5, 12]
   OpponentChooseMode:
     value: max_exp
     option: [ max_exp, easiest, leftmost, easiest_else_exp ]
@@ -668,6 +697,8 @@ OpsiGeneral:
     option: [ 0, 1, 2, 3, 4, 5 ]
   OilLimit: 1000
   RepairThreshold: 0.4
+  UseRepairPack: false
+  RepairPackThreshold: 0.9
   DoRandomMapEvent: true
   AkashiShopFilter: |-
     ActionPoint > PurpleCoins
@@ -705,18 +736,31 @@ OpsiShop:
     > GearDesignPlanT3 > PlateRandomT4 > DevelopmentMaterialT3 > GearDesignPlanT2 > GearPart
     > OrdnanceTestingReportT3 > OrdnanceTestingReportT2 > DevelopmentMaterialT2 > OrdnanceTestingReportT1
     > METARedBook > CrystallizedHeatResistantSteel > NanoceramicAlloy > NeuroplasticProstheticArm > SupercavitationGenerator
+  DisableBeforeDate: 0
 OpsiVoucher:
   Filter: |-
     LoggerAbyssal > LoggerObscure > Book > Coin > Fragment
 OpsiDaily:
   DoMission: true
   UseTuningSample: true
+  SkipSirenResearchMission: false
+  KeepMissionZone: false
+  MissionZones:
+    type: stored
+    value: null
+    display: hide
 OpsiObscure:
+  SkipHazard2Obscure: false
   ForceRun: false
 OpsiAbyssal:
   ForceRun: false
 OpsiStronghold:
+  SubmarineEveryCombat: false
   ForceRun: false
+  HasStronghold:
+    type: stored
+    value: True
+    display: hide
 OpsiMonthBoss:
   Mode:
     value: normal
@@ -727,13 +771,16 @@ OpsiMeowfficerFarming:
   ActionPointPreserve: 1000
   HazardLevel:
     value: 5
-    option: [ 3, 4, 5, 6, 10 ]
+    option: [ 2, 3, 4, 5, 6, 10 ]
   TargetZone:
     value: 0
+  APPreserveUntilReset: false
 OpsiHazard1Leveling:
   TargetZone:
     value: 0
     option: [ 0, 44, 22 ]
+  OperationCoinsPreserve: 100000
+  DoScanningDevice: false
 
 # ==================== Tools ====================
 
@@ -747,6 +794,13 @@ EventStory:
     type: checkbox
     value: false
     option: [ true, false ]
+BoxDisassemble:
+  UsePurpleBox: false
+  PurpleBoxLimit: 100
+  UseBlueBox: false
+  BlueBoxLimit: 1000
+  UseWhiteBox: true
+  WhiteBoxLimit: 2000
 Benchmark:
   DeviceType:
     value: emulator
@@ -766,3 +820,80 @@ AzurLaneUncensored:
     display: disabled
 GameManager:
   AutoRestart: true
+
+# ==================== Dashboard ====================
+Oil:
+  Value: 0
+  Limit: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+Coin:
+  Value: 0
+  Limit: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+Gem:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+Pt:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+YellowCoin:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+PurpleCoin:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+ActionPoint:
+  Value: 0
+  Total: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+Merit:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+Cube:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+Core:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+Medal:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00
+GuildCoin:
+  Value: 0
+  Color:
+    value: ^000000
+    display: hide
+  Record: 2020-01-01 00:00:00

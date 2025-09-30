@@ -61,6 +61,8 @@ Farm:
       - Campaign
       - StopCondition
       - Fleet
+      - Submarine
+      - Emotion
 
 # ==================== Event ====================
 
@@ -98,6 +100,11 @@ Event:
     Hospital:
       - Scheduler
       - Hospital
+      - StopCondition
+      - Emotion
+    HospitalEvent:
+      - Scheduler
+      - HospitalEvent
       - StopCondition
       - Emotion
     Coalition:
@@ -337,6 +344,8 @@ Tool:
       - OpsiDaemon
     EventStory:
       - EventStory
+    BoxDisassemble:
+      - BoxDisassemble
     Benchmark:
       - Benchmark
     AzurLaneUncensored:

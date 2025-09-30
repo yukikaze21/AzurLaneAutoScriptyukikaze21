@@ -133,15 +133,15 @@ class FastForwardHandler(AutoSearchHandler):
     ]
     map_fleet_checked = False
 
-    def map_get_info(self):
+    def map_get_info(self, star=False):
         """
         Logs:
             | INFO | [Map_info] 98%, star_1, star_2, star_3, clear, 3_star, green, fast_forward
         """
         self.map_clear_percentage = self.get_map_clear_percentage()
-        self.map_achieved_star_1 = self._is_map_star_active(MAP_STAR_1)
-        self.map_achieved_star_2 = self._is_map_star_active(MAP_STAR_2)
-        self.map_achieved_star_3 = self._is_map_star_active(MAP_STAR_3)
+        self.map_achieved_star_1 = self._is_map_star_active(MAP_STAR_1) or star
+        self.map_achieved_star_2 = self._is_map_star_active(MAP_STAR_2) or star
+        self.map_achieved_star_3 = self._is_map_star_active(MAP_STAR_3) or star
         self.map_is_100_percent_clear = self.map_clear_percentage > 0.95
         self.map_is_3_stars = self.map_achieved_star_1 and self.map_achieved_star_2 and self.map_achieved_star_3
         self.map_is_threat_safe = self.appear(MAP_GREEN, offset=(20, 20))
@@ -158,8 +158,9 @@ class FastForwardHandler(AutoSearchHandler):
             # Story before boss spawn, Attribute "story_refresh_boss" in chapter_template.lua
             self.config.MAP_HAS_MAP_STORY = False
         self.config.MAP_CLEAR_ALL_THIS_TIME = self.config.STAR_REQUIRE_3 \
-            and not self.__getattribute__(f'map_achieved_star_{self.config.STAR_REQUIRE_3}') \
-            and (self.config.StopCondition_MapAchievement in ['map_3_stars', 'threat_safe'])
+            and (self.config.StopCondition_MapAchievement == 'non_stop_clear_all' \
+            or (not self.__getattribute__(f'map_achieved_star_{self.config.STAR_REQUIRE_3}') \
+            and (self.config.StopCondition_MapAchievement in ['map_3_stars', 'threat_safe'])))
 
         self.map_show_info()
 
@@ -292,7 +293,21 @@ class FastForwardHandler(AutoSearchHandler):
 
         logger.info('Auto search setting')
         self.fleet_preparation_sidebar_ensure(3)
-        self.auto_search_setting_ensure(self.config.Fleet_FleetOrder)
+        if not self.auto_search_setting_ensure(self.config.Fleet_FleetOrder) \
+                and self.config.task.command == 'GemsFarming':
+            from module.notify import handle_notify
+            if not handle_notify(
+                self.config.Error_OnePushConfig,
+                title=f"Alas <{self.config.config_name}> crashed",
+                content=f"<{self.config.config_name}> RequestHumanTakeover\n"
+                        f"Task GemsFarming could not set auto search settings",
+                                    ):
+                from module.exception import AutoSearchSetError
+                raise AutoSearchSetError
+            self.config.cross_set(keys='GemsFarming.Scheduler.Enable', value=False)
+            logger.critical('Auto search could not be ensured.')
+            logger.critical('Close Task: GemsFarming')
+            self.config.task_stop('Auto search could not be ensured.')
         if self.config.SUBMARINE:
             self.auto_search_setting_ensure(self.config.Submarine_AutoSearchMode)
         return True
@@ -326,7 +341,7 @@ class FastForwardHandler(AutoSearchHandler):
         self.auto_search_setting_ensure('sub_standby')
         return True
 
-    def handle_auto_search_continue(self):
+    def handle_auto_search_continue(self, drop=None):
         """
         Override AutoSearchHandler definition
         for 2x book handling if needed
@@ -334,6 +349,8 @@ class FastForwardHandler(AutoSearchHandler):
         if self.appear(AUTO_SEARCH_MENU_CONTINUE, offset=self._auto_search_menu_offset, interval=2):
             self.map_is_2x_book = self.config.Campaign_Use2xBook
             self.handle_2x_book_setting(mode='auto')
+            if drop:
+                drop.handle_add(main=self, before=4)
             if self.appear_then_click(AUTO_SEARCH_MENU_CONTINUE, offset=self._auto_search_menu_offset):
                 self.interval_reset(AUTO_SEARCH_MENU_CONTINUE)
             else:

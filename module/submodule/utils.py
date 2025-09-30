@@ -18,11 +18,11 @@ def get_available_func():
         'Daemon',
         'OpsiDaemon',
         'EventStory',
+        'BoxDisassemble',
         'AzurLaneUncensored',
         'Benchmark',
         'GameManager',
     )
-
 
 def get_available_mod():
     return set(MOD_DICT)

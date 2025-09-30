@@ -23,7 +23,7 @@ equipping_filter.add_state('off', check_button=EQUIPPING_OFF)
 
 
 class EquipmentChange(Equipment):
-    equipment_list = {}
+    equip_list = {}
 
     def equipping_set(self, enable=False):
         if equipping_filter.set('on' if enable else 'off', main=self):
@@ -35,7 +35,7 @@ class EquipmentChange(Equipment):
         Notice: The equipment icons in the upgrade page are the same size as the icons in the equipment status
         """
         logger.info('RECORD EQUIPMENT')
-        self.ship_side_navbar_ensure(bottom=1)
+        self.equip_side_navbar_ensure(bottom=1)
 
         # Ensure EQUIPMENT_GRID in the right place
         skip_first_screenshot = True
@@ -47,7 +47,7 @@ class EquipmentChange(Equipment):
             if self.appear(EQUIPMENT_OPEN, offset=(5, 5)):
                 break
 
-        self.equipment_list = {}
+        self.equip_list = {}
         info_bar_disappeared = False
         for index, button in enumerate(EQUIPMENT_GRID.buttons):
             if index not in index_list:
@@ -69,7 +69,7 @@ class EquipmentChange(Equipment):
                 if not info_bar_disappeared:
                     self.handle_info_bar()
                     info_bar_disappeared = True
-                self.equipment_list[index] = self.image_crop(EQUIP_SAVE)
+                self.equip_list[index] = self.image_crop(EQUIP_SAVE)
                 # Quit upgrade inform
                 self.ui_click(
                     click_button=UPGRADE_QUIT, check_button=EQUIPMENT_OPEN, appear_button=UPGRADE_ENTER_CHECK,
@@ -77,17 +77,17 @@ class EquipmentChange(Equipment):
             else:
                 logger.info(f"Equipment {index} is empty")
 
-        logger.info(f"Recorded equipment index list: {list(self.equipment_list.keys())}")
+        logger.info(f"Equipping list: {list(self.equip_list.keys())}")
 
-    def ship_equipment_take_on_image(self, index_list=range(0, 5), skip_first_screenshot=True):
-        """
+    def equipment_take_on(self, index_list=range(0, 5), skip_first_screenshot=True):
+        '''
         Equip the equipment previously recorded
-        """
+        '''
         logger.info('Take on equipment')
-        self.ship_side_navbar_ensure(bottom=2)
+        self.equip_side_navbar_ensure(bottom=2)
 
         for index in index_list:
-            if index in self.equipment_list:
+            if index in self.equip_list:
                 logger.info(f'Take on {index}')
                 enter_button = globals()[
                     'EQUIP_TAKE_ON_{index}'.format(index=index)]
@@ -95,7 +95,7 @@ class EquipmentChange(Equipment):
                 self.ui_click(enter_button, check_button=EQUIPPING_ON,
                               skip_first_screenshot=skip_first_screenshot, offset=(5, 5))
                 self.handle_info_bar()
-                self._find_equipment(index)
+                self._find_equip(index)
 
     @Config.when(DEVICE_CONTROL_METHOD='minitouch')
     def _equipment_swipe(self, distance=190):
@@ -118,13 +118,13 @@ class EquipmentChange(Equipment):
         self.device.screenshot()
 
     def _equip_equipment(self, point, offset=(100, 100)):
-        """
+        '''
         Equip Equipment then back to ship details
         Confirm the popup
         Pages:
             in: EQUIPMENT STATUS
             out: SHIP_SIDEBAR_EQUIPMENT
-        """
+        '''
         logger.info('Equip equipment')
         button = Button(area=(), color=(), button=(point[0], point[1], point[0] + offset[0], point[1] + offset[1]),
                         name='EQUIPMENT')
@@ -132,17 +132,17 @@ class EquipmentChange(Equipment):
         logger.info('Equip confirm')
         self.ui_click(click_button=EQUIP_CONFIRM, check_button=SHIP_INFO_EQUIPMENT_CHECK)
 
-    def _find_equipment(self, index):
-        """
+    def _find_equip(self, index):
+        '''
         Find the equipment previously recorded
         Pages:
             in: EQUIPMENT STATUS
-        """
+        '''
 
         self.equipping_set(False)
 
         res = cv2.matchTemplate(self.device.screenshot(), np.array(
-            self.equipment_list[index]), cv2.TM_CCOEFF_NORMED)
+            self.equip_list[index]), cv2.TM_CCOEFF_NORMED)
         _, sim, _, point = cv2.minMaxLoc(res)
 
         if sim > SIM_VALUE:
@@ -161,7 +161,7 @@ class EquipmentChange(Equipment):
                 self.device.click(BACK_ARROW)
                 continue
             res = cv2.matchTemplate(self.device.screenshot(), np.array(
-                self.equipment_list[index]), cv2.TM_CCOEFF_NORMED)
+                self.equip_list[index]), cv2.TM_CCOEFF_NORMED)
             _, sim, _, point = cv2.minMaxLoc(res)
 
             if sim > SIM_VALUE:

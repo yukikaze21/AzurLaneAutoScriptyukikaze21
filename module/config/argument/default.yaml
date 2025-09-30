@@ -27,33 +27,7 @@ EventD:
 
 # ==================== Reward ====================
 
-Commission:
-  Scheduler:
-    Enable: true
-Tactical:
-  Scheduler:
-    Enable: true
-Research:
-  Scheduler:
-    Enable: true
-Dorm:
-  Scheduler:
-    Enable: true
-Meowfficer:
-  Scheduler:
-    Enable: true
-Guild:
-  Scheduler:
-    Enable: true
-Reward:
-  Scheduler:
-    Enable: true
-
 # ==================== DailyReward ====================
-
-Freebies:
-  Scheduler:
-    Enable: true
 
 # ==================== DailyMission ====================
 

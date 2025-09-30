@@ -14,6 +14,8 @@ from module.exception import *
 from module.logger import logger
 from module.notify import handle_notify
 
+RESTART_SENSITIVE_TASKS = ['OpsiObscure', 'OpsiAbyssal', 'OpsiCrossMonth']
+
 
 class AzurLaneAutoScript:
     stop_event: threading.Event = None
@@ -47,6 +49,9 @@ class AzurLaneAutoScript:
             return device
         except RequestHumanTakeover:
             logger.critical('Request human takeover')
+            exit(1)
+        except EmulatorNotRunningError:
+            logger.critical('EmulatorNotRunningError')
             exit(1)
         except Exception as e:
             logger.exception(e)
@@ -96,12 +101,10 @@ class AzurLaneAutoScript:
             if self.checker.is_available():
                 logger.critical('Game page unknown')
                 self.save_error_log()
-                handle_notify(
-                    self.config.Error_OnePushConfig,
-                    title=f"Alas <{self.config_name}> crashed",
-                    content=f"<{self.config_name}> GamePageUnknownError",
-                )
-                exit(1)
+                logger.warning('Restart to reset Game page in 10 seconds')
+                self.config.task_call('Restart')
+                self.device.sleep(10)
+                return False
             else:
                 self.checker.wait_until_available()
                 return False
@@ -121,6 +124,10 @@ class AzurLaneAutoScript:
                 title=f"Alas <{self.config_name}> crashed",
                 content=f"<{self.config_name}> RequestHumanTakeover",
             )
+            exit(1)
+        except AutoSearchSetError:
+            logger.critical('Auto search could not be set correctly. Maybe your ships in hard mode are changed.')
+            logger.critical('Request human takeover.')
             exit(1)
         except Exception as e:
             logger.exception(e)
@@ -379,6 +386,10 @@ class AzurLaneAutoScript:
         from module.event_hospital.hospital import Hospital
         Hospital(config=self.config, device=self.device).run()
 
+    def hospital_event(self):
+        from module.event_hospital.hospital_event import HospitalEvent
+        HospitalEvent(config=self.config, device=self.device).run()
+
     def coalition(self):
         from module.coalition.coalition import Coalition
         Coalition(config=self.config, device=self.device).run()
@@ -418,6 +429,10 @@ class AzurLaneAutoScript:
     def event_story(self):
         from module.eventstory.eventstory import EventStory
         EventStory(config=self.config, device=self.device, task="EventStory").run()
+
+    def box_disassemble(self):
+        from module.storage.box_disassemble import StorageBox
+        StorageBox(config=self.config, device=self.device, task="BoxDisassemble").run()
 
     def azur_lane_uncensored(self):
         from module.daemon.uncensored import AzurLaneUncensored
@@ -541,8 +556,12 @@ class AzurLaneAutoScript:
             _ = self.device
             self.device.config = self.config
             # Skip first restart
-            if self.is_first_task and task == 'Restart':
-                logger.info('Skip task `Restart` at scheduler start')
+            if task == 'Restart':
+                if self.is_first_task:
+                    logger.info('Skip task `Restart` at scheduler start')
+                else:
+                    from module.handler.login import LoginHandler
+                    LoginHandler(self.config, self.device).app_restart()
                 self.config.task_delay(server_update=True)
                 del_cached_property(self, 'config')
                 continue
@@ -560,17 +579,21 @@ class AzurLaneAutoScript:
             failed = deep_get(self.failure_record, keys=task, default=0)
             failed = 0 if success else failed + 1
             deep_set(self.failure_record, keys=task, value=failed)
-            if failed >= 3:
-                logger.critical(f"Task `{task}` failed 3 or more times.")
+            if failed >= 3 or (self.config.Error_StrictRestart and failed >= 1 and task in RESTART_SENSITIVE_TASKS):
+                logger.critical(f"Task `{task}` failed {failed} or more times.")
                 logger.critical("Possible reason #1: You haven't used it correctly. "
                                 "Please read the help text of the options.")
                 logger.critical("Possible reason #2: There is a problem with this task. "
                                 "Please contact developers or try to fix it yourself.")
+                if self.config.Error_StrictRestart and task in RESTART_SENSITIVE_TASKS:
+                    logger.critical("Possible reason #3: This is a restart sensitive task. "
+                                    "Please take over the game manually or turn off 'StrictRestart' option.")
                 logger.critical('Request human takeover')
+
                 handle_notify(
                     self.config.Error_OnePushConfig,
                     title=f"Alas <{self.config_name}> crashed",
-                    content=f"<{self.config_name}> RequestHumanTakeover\nTask `{task}` failed 3 or more times.",
+                    content=f"<{self.config_name}> RequestHumanTakeover\nTask `{task}` failed {failed} or more times.",
                 )
                 exit(1)
 

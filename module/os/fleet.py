@@ -22,7 +22,7 @@ from module.os.camera import OSCamera
 from module.os.map_base import OSCampaignMap
 from module.os_ash.ash import OSAsh
 from module.os_combat.combat import Combat
-from module.os_handler.assets import AUTO_SEARCH_REWARD, CLICK_SAFE_AREA, IN_MAP, PORT_ENTER
+from module.os_handler.assets import AUTO_SEARCH_REWARD, CLICK_SAFE_AREA, IN_MAP, PORT_ENTER, TEMPLATE_STORAGE_SHIP_EMPTY
 from module.os_shop.assets import PORT_SUPPLY_CHECK
 from module.ui.assets import BACK_ARROW
 
@@ -169,6 +169,9 @@ class OSFleet(OSCamera, Combat, Fleet, OSAsh):
 
         return hp_grid
 
+    def _storage_hp_grid(self):
+        return ButtonGrid(origin=(185, 553), delta=(166, 0), button_shape=(99, 4), grid_shape=(6, 1))
+
     def hp_retreat_triggered(self):
         return False
 
@@ -194,6 +197,37 @@ class OSFleet(OSCamera, Combat, Fleet, OSAsh):
                 [str(int(data * 100)).rjust(3) + '%' if use else '____'
                  for data, use in zip(self.hp, self.hp_has_ship)]))
 
+        return self.hp
+
+    def _storage_hp_get(self):
+        super().hp_get()
+        ship_icon = self._hp_grid().crop((-29, -165, 106, -30))
+        has_ship = [not TEMPLATE_STORAGE_SHIP_EMPTY.match(
+                    self.image_crop(button, copy=False)) for button in ship_icon.buttons]
+        need_repair = [not repair for repair in self.hp_has_ship]
+        for index, repair in enumerate(need_repair):
+            if repair:
+                self._hp[self.fleet_current_index][index] = 0
+        for index, ship in enumerate(has_ship):
+            self._hp_has_ship[self.fleet_current_index][index] = ship
+        self.need_repair = [all(repair) for repair in zip(need_repair, has_ship)]
+        logger.attr('Repair icon', self.need_repair)
+        logger.attr('HP', ' '.join(
+            [str(int(data * 100)).rjust(3) + '%' if use else '____'
+            for data, use in zip(self.hp, self.hp_has_ship)]))
+
+    def storage_hp_get(self):
+        """
+        Calculate current HP in page STORAGE_CHECK, also detects the wrench (Ship died, need to repair)
+        """
+        origin = (self._hp_grid, self.COLOR_HP_RED)
+        self._hp_grid = self._storage_hp_grid
+        self.COLOR_HP_RED = (236, 0, 0)
+        try:
+            self._storage_hp_get()
+        finally:
+            self._hp_grid = origin[0]
+            self.COLOR_HP_RED = origin[1]
         return self.hp
 
     def lv_get(self, after_battle=False):
@@ -287,6 +321,7 @@ class OSFleet(OSCamera, Combat, Fleet, OSAsh):
         result = set()
         # Record story history to clear click record
         clicked_story = False
+        clicked_story_count = 0
 
         confirm_timer.reset()
         while 1:
@@ -302,15 +337,28 @@ class OSFleet(OSCamera, Combat, Fleet, OSAsh):
                 result.add('event')
                 if event == 'story_skip':
                     clicked_story = True
+                    clicked_story_count += 1
+                    # Clear click record to avoid GameTooManyClickError caused by
+                    # over 6 options in siren scanning devices
+                    # The progress of confirming to submit items, in siren scanning devices is
+                    # STORY_OPTION_2_OF_3 -> POPUP_CONFIRM_STORY_SKIP
+                    # both of operations return 'story_skip' event
+                    # Continuous 2 story_skip means a submission of siren scanning devices
+                    if clicked_story_count >= 11:
+                        logger.info('Continuous options in story')
+                        self.device.click_record_clear()
+                        clicked_story_count = 0
                 elif event == 'map_get_items':
                     # story_skip -> map_get_items means abyssal progress reward is received
                     if clicked_story:
                         logger.info('Got items from story')
                         self.device.click_record_clear()
                         clicked_story = False
+                    clicked_story_count = 0
                 else:
                     # Handled other events, clear history
                     clicked_story = False
+                    clicked_story_count = 0
                 continue
             if self.handle_retirement():
                 confirm_timer.reset()
@@ -321,7 +369,6 @@ class OSFleet(OSCamera, Combat, Fleet, OSAsh):
                 else:
                     continue
             if self.handle_popup_confirm('WALK_UNTIL_STABLE'):
-                # Confirm to submit items, in siren scanning devices
                 confirm_timer.reset()
                 continue
 
@@ -473,6 +520,18 @@ class OSFleet(OSCamera, Combat, Fleet, OSAsh):
             return True
         else:
             return False
+
+    def storage_fleet_set(self, index=1, skip_first_screenshot=True):
+        """
+        Args:
+            index (int): Target fleet_current_index
+            skip_first_screenshot (bool):
+
+        Returns:
+            bool: If switched.
+        """
+        logger.hr(f'Fleet set to {index}')
+        return self.storage_fleet_selector.ensure_to_be(index)
 
     def parse_fleet_filter(self):
         """
