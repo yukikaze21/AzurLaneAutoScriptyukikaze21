@@ -429,7 +429,7 @@ class ActionPointHandler(UI, MapEventHandler):
 
             # Sort action point boxes
             box = []
-            for index in [1, 2, 3]:
+            for index in [3, 2, 1]:
                 if self._action_point_box[index] > 0:
                     if self._action_point_current + ACTION_POINT_BOX[index] >= 200:
                         box.append(index)
